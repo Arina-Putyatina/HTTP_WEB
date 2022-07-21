@@ -15,7 +15,7 @@ public class Server {
     public static final int REQUEST_LINE_COUNT = 3;
     public static List<String> validPaths = new ArrayList<>();
 
-    public void start(int port) {
+    public void listen(int port) {
 
         ExecutorService service = Executors.newFixedThreadPool(POOL_SIZE);
         fillValidPaths();
