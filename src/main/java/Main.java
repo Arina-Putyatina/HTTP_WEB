@@ -1,6 +1,10 @@
 
 public class Main {
+
+    public static final int PORT = 9999;
+
     public static void main(String[] args) {
-        Server.start();
+        final Server server = new Server();
+        server.start(PORT);
     }
 }

@@ -12,16 +12,15 @@ import java.util.concurrent.Executors;
 public class Server {
 
     public static final int POOL_SIZE = 64;
-    public static final int PORT = 9999;
     public static final int REQUEST_LINE_COUNT = 3;
     public static List<String> validPaths = new ArrayList<>();
 
-    public static void start() {
+    public void start(int port) {
 
         ExecutorService service = Executors.newFixedThreadPool(POOL_SIZE);
         fillValidPaths();
 
-        try (final var serverSocket = new ServerSocket(PORT)) {
+        try (final var serverSocket = new ServerSocket(port)) {
             while (true) {
                 try {
                     final var socket = serverSocket.accept();
