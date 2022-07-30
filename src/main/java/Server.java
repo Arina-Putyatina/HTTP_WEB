@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -12,20 +10,11 @@ public class Server {
 
     public static final int POOL_SIZE = 64;
     public static final int REQUEST_LINE_COUNT = 3;
-    public List<String> validPaths = new ArrayList<>();
+    private Handler defaultHandler = null;
     private final Map<String, Map<String, Handler>> mapHandlers = new ConcurrentHashMap<>();
 
-    public Server() {
-        fillValidPaths();
-    }
-
-    public void fillValidPaths() {
-        File f = new File("public");
-        for (File s : f.listFiles()) {
-            if (s.isFile()) {
-                validPaths.add("/" + s.getName());
-            }
-        }
+    public void setDefaultHandler(Handler defaultHandler) {
+        this.defaultHandler = defaultHandler;
     }
 
     public void listen(int port) {
@@ -62,10 +51,14 @@ public class Server {
                 && mapHandlers.get(request.getMethod()).containsKey(request.getPath())) {
             mapHandlers.get(request.getMethod()).get(request.getPath()).handle(request, responseStream);
         } else {
-            try {
-                sendNotFound(responseStream);
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (defaultHandler != null) {
+                defaultHandler.handle(request, responseStream);
+            } else {
+                try {
+                    sendNotFound(responseStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

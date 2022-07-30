@@ -14,10 +14,6 @@ public class Main {
         Handler defaultHandler = (request, responseStream) -> {
             final Path filePath = Path.of(".", "public", request.getPath());
             try {
-                if (!server.validPaths.contains(request.getPath())) {
-                    Server.sendNotFound(responseStream);
-                    return;
-                }
                 final String mimeType;
 
                 mimeType = Files.probeContentType(filePath);
@@ -30,9 +26,7 @@ public class Main {
             }
         };
 
-        for (String validPath : server.validPaths) {
-            server.addHandler("GET", validPath, defaultHandler);
-        }
+        server.setDefaultHandler(defaultHandler);
 
         server.addHandler("GET", "/classic.html", new Handler() {
             public void handle(Request request, BufferedOutputStream responseStream) {
