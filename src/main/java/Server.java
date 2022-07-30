@@ -13,7 +13,7 @@ public class Server {
 
     public static final int POOL_SIZE = 64;
     public static final int REQUEST_LINE_COUNT = 3;
-    public static List<String> validPaths = new ArrayList<>();
+    public List<String> validPaths = new ArrayList<>();
 
     public void listen(int port) {
 
@@ -34,7 +34,7 @@ public class Server {
         }
     }
 
-    public static void fillValidPaths() {
+    public void fillValidPaths() {
         File f = new File("public");
         for (File s : f.listFiles()) {
             if (s.isFile()) {
@@ -42,9 +42,9 @@ public class Server {
             }
         }
     }
-    public static void connection(Socket socket) {
+    public void connection(Socket socket) {
         try (final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             final var out = new BufferedOutputStream(socket.getOutputStream());) {
+             final var out = new BufferedOutputStream(socket.getOutputStream())) {
             // read only request line for simplicity
             // must be in form GET /path HTTP/1.1
             final var requestLine = in.readLine();
