@@ -1,15 +1,21 @@
+import org.apache.http.NameValuePair;
+
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 public class Request {
 
     private final String method;
     private final String path;
+    private final List<String> headers;
     private InputStream body;
+    private List<NameValuePair> queryParams;
 
-    public Request(String method, String path) {
+    public Request(String method, String path, List<String> headers) {
         this.method = method;
         this.path = path;
+        this.headers = headers;
     }
 
     public String getMethod() {
@@ -24,8 +30,28 @@ public class Request {
         return body;
     }
 
+    public List<NameValuePair> getQueryParams() {
+        return queryParams;
+    }
+
+    public String getQueryParam(String name) {
+
+        String value = "";
+        for (NameValuePair queryParam : queryParams) {
+            if (queryParam.getName().equals(name)) {
+                value = queryParam.getValue();
+                break;
+            }
+        }
+        return value;
+    }
+
     public void setBody(InputStream body) {
         this.body = body;
+    }
+
+    public void setQueryParams(List<NameValuePair> queryParams) {
+        this.queryParams = queryParams;
     }
 
     @Override
@@ -46,6 +72,7 @@ public class Request {
         return "Request{" +
                 "method='" + method + '\'' +
                 ", path='" + path + '\'' +
+                ", headers='" + headers + '\'' +
                 '}';
     }
 }
