@@ -1,6 +1,8 @@
 import org.apache.http.NameValuePair;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -11,6 +13,7 @@ public class Request {
     private final List<String> headers;
     private InputStream body;
     private List<NameValuePair> queryParams;
+    private HashSet<PostParameter> postParameters;
 
     public Request(String method, String path, List<String> headers) {
         this.method = method;
@@ -46,12 +49,31 @@ public class Request {
         return value;
     }
 
+    public HashSet<PostParameter> getPostParameters() {
+        return postParameters;
+    }
+
+    public ArrayList<PostParameter> getPostParam(String name) {
+
+        ArrayList<PostParameter> result = new ArrayList<>();
+
+        for (PostParameter postParam : postParameters) {
+            if (postParam.getName().equals(name)) result.add(postParam);
+        }
+
+        return result;
+    }
+
     public void setBody(InputStream body) {
         this.body = body;
     }
 
     public void setQueryParams(List<NameValuePair> queryParams) {
         this.queryParams = queryParams;
+    }
+
+    public void setPostParameters(HashSet<PostParameter> postParameters) {
+        this.postParameters = postParameters;
     }
 
     @Override

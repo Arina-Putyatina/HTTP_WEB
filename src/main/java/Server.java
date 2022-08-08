@@ -5,9 +5,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +14,8 @@ public class Server {
 
     public static final int POOL_SIZE = 64;
     public static final int REQUEST_LINE_COUNT = 3;
+    public static final String GET = "GET";
+    public static final String POST = "POST";
     private Handler defaultHandler = null;
     private final Map<String, Map<String, Handler>> mapHandlers = new ConcurrentHashMap<>();
     private final int limit = 4096;
@@ -124,11 +124,26 @@ public class Server {
 
             List<NameValuePair> requestParameters = URLEncodedUtils.parse(query, Charset.defaultCharset());
 
+            HashSet<PostParameter> postParameters = new HashSet<>();
+
+            if (!method.equals(GET)) {
+                in.skip(headersDelimiter.length);
+                // вычитываем Content-Length, чтобы прочитать body
+                final var contentLength = extractHeader(headers, "Content-Length");
+                if (contentLength.isPresent()) {
+                    final var length = Integer.parseInt(contentLength.get());
+                    final var bodyBytes = in.readNBytes(length);
+
+                    final var body = new String(bodyBytes);
+                    fillPostParameters(postParameters, body);
+                }
+            }
             Request request = new Request(method, path, headers);
             request.setBody(socket.getInputStream());
             request.setQueryParams(requestParameters);
-            System.out.println(request.getQueryParams());
-            System.out.println(request.getQueryParam("password"));
+            request.setPostParameters(postParameters);
+
+            System.out.println(request.getPostParam("login"));
             runHandler(request, out);
 
         } catch (IOException e) {
@@ -167,6 +182,26 @@ public class Server {
             return i;
         }
         return -1;
+    }
+
+    private static Optional<String> extractHeader(List<String> headers, String header) {
+        return headers.stream()
+                .filter(o -> o.startsWith(header))
+                .map(o -> o.substring(o.indexOf(" ")))
+                .map(String::trim)
+                .findFirst();
+    }
+
+    private static void fillPostParameters(HashSet<PostParameter> postParameters, String body) {
+
+        String[] bodyParts = body.split("&");
+        for (String parameter : bodyParts) {
+            String[] parameterParts = parameter.split("=");
+            if (parameterParts.length == 2) {
+                PostParameter postParameter = new PostParameter(parameterParts[0], parameterParts[1]);
+                postParameters.add(postParameter);
+            }
+        }
     }
 }
 
