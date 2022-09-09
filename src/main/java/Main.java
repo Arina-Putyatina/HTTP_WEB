@@ -1,4 +1,5 @@
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,7 +14,14 @@ public class Main {
 
         Handler defaultHandler = (request, responseStream) -> {
             final Path filePath = Path.of(".", "public", request.getPath());
+
             try {
+                File f = filePath.toFile();
+                if(!f.exists() || f.isDirectory()) {
+                    server.sendNotFound(responseStream);
+                    return;
+                }
+
                 final String mimeType;
 
                 mimeType = Files.probeContentType(filePath);

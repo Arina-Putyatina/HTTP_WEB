@@ -143,7 +143,8 @@ public class Server {
             request.setQueryParams(requestParameters);
             request.setPostParameters(postParameters);
 
-            System.out.println(request.getPostParam("login"));
+            System.out.println("Параметры запроса:" + request.getQueryParams());
+            System.out.println("Параметры формы (login):" + request.getPostParam("login"));
             runHandler(request, out);
 
         } catch (IOException e) {
