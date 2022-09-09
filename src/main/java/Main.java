@@ -1,4 +1,5 @@
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +17,11 @@ public class Main {
             try {
                 final String mimeType;
 
+                File f = filePath.toFile();
+                if(!f.exists() || f.isDirectory()) {
+                    Server.sendNotFound(responseStream);
+                    return;
+                }
                 mimeType = Files.probeContentType(filePath);
                 final long length = Files.size(filePath);
                 Server.sendAnswer(responseStream, mimeType, length);
